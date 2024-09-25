@@ -4,25 +4,26 @@ const ul = document.getElementById("dropdown-id");
 const content = document.getElementById("content");
 
 const buttonValues = [
-  "Action",
-  "Adventure",
-  "Animation",
-  "Comedy",
-  "Crime",
-  "Documentary",
-  "Drama",
-  "Family",
-  "Fantasy",
-  "History",
-  "Horror",
-  "Music",
-  "Mystery",
-  "Romance",
-  "Science Fiction",
-  "TV Movie",
-  "Thriller",
-  "War",
-  "Western",
+  action={name:"Action",value:"28"},
+  adventure={name:"Adventure",value:"12"},
+  animated={name:"Animation",value:"16"},
+  comedy  ={name:"Comedy",value:"35"} ,
+  crime  ={name:"Crime",value:"80"} ,
+  documentary={name:"Documentary",value:"99"},
+  drama={name:"Drama",value:"18"},
+  family ={name:"Family",value:"10751"},
+  fantasy={name:"Fantasy",value:" 14"},
+  history ={name:"History",value:"36"},
+  horror ={name:"Horror",value:"27"},
+  music ={name:"Music",value:"10402"},
+  mystery  ={name:"Mystery",value:"9648"},
+  romance ={name:"Romance",value:"10749"},
+  sci_fi ={name:"Science Fiction",value:"878"} ,
+  TV_movie ={name:"TV Movie",value:"10770"},
+  thriller ={name:"Thriller",value:"53"},
+  war ={name:"War",value:"10752"},
+  western ={name:"Western",value:"37"},
+
 ];
 
 
@@ -53,9 +54,11 @@ const buttonValues = [
 
 for (let i = 0; i < buttonValues.length; i++) {
   var button_values = buttonValues[i];
-  let li = `<li><a class="dropdown-item" id="${button_values}" href="#">${button_values}</a></li>`;
+  let li = `<li><a class="dropdown-item" id="${button_values.value}" href="#">${button_values.name}</a></li>`;
   ul.insertAdjacentHTML("beforeend", li);
 }
+
+
 const options = {
   method: "GET",
   headers: {
@@ -72,3 +75,5 @@ fetch(
   .then((response) => response.json())
   .then((response) => console.log(response))
   .catch((err) => console.error(err));
+
+  console.log(button_values.value,buttonValues.name)
