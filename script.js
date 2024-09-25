@@ -1,4 +1,4 @@
-const API_KEY = "4b95aa16f04966197e2929f3cd78426d";
+
 
 const ul = document.getElementById("dropdown-id");
 const content = document.getElementById("content");
