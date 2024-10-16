@@ -1,79 +1,106 @@
+// Seçilen değeri almak için async fonksiyon
+async function getSelectedValue() {
+  var dropdown = document.getElementById("myDropdown");
+  var selectedValue = dropdown.value;
+  console.log("Seçilen değer: " + selectedValue);
+  return selectedValue; // Fonksiyon sonucunda seçilen değeri geri döndür
+ 
+}
 
-
+// Dropdown ve content elementleri
 const ul = document.getElementById("dropdown-id");
 const content = document.getElementById("content");
-
 const buttonValues = [
-  action={name:"Action",value:"28"},
-  adventure={name:"Adventure",value:"12"},
-  animated={name:"Animation",value:"16"},
-  comedy  ={name:"Comedy",value:"35"} ,
-  crime  ={name:"Crime",value:"80"} ,
-  documentary={name:"Documentary",value:"99"},
-  drama={name:"Drama",value:"18"},
-  family ={name:"Family",value:"10751"},
-  fantasy={name:"Fantasy",value:" 14"},
-  history ={name:"History",value:"36"},
-  horror ={name:"Horror",value:"27"},
-  music ={name:"Music",value:"10402"},
-  mystery  ={name:"Mystery",value:"9648"},
-  romance ={name:"Romance",value:"10749"},
-  sci_fi ={name:"Science Fiction",value:"878"} ,
-  TV_movie ={name:"TV Movie",value:"10770"},
-  thriller ={name:"Thriller",value:"53"},
-  war ={name:"War",value:"10752"},
-  western ={name:"Western",value:"37"},
-
+  { name: "Action", value: "28" },
+  { name: "Adventure", value: "12" },
+  { name: "Animation", value: "16" },
+  { name: "Comedy", value: "35" },
+  { name: "Crime", value: "80" },
+  { name: "Documentary", value: "99" },
+  { name: "Drama", value: "18" },
+  { name: "Family", value: "10751" },
+  { name: "Fantasy", value: "14" },
+  { name: "History", value: "36" },
+  { name: "Horror", value: "27" },
+  { name: "Music", value: "10402" },
+  { name: "Mystery", value: "9648" },
+  { name: "Romance", value: "10749" },
+  { name: "Science Fiction", value: "878" },
+  { name: "TV Movie", value: "10770" },
+  { name: "Thriller", value: "53" },
+  { name: "War", value: "10752" },
+  { name: "Western", value: "37" },
 ];
 
+// Dropdown'a seçenekleri ekle
+buttonValues.forEach(button_value => {
+  let option = `<option value="${button_value.value}">${button_value.name}</option>`;
+  document.getElementById("myDropdown").insertAdjacentHTML("beforeend", option);
+});
 
-  let card1 = `<div class="card m-2" class="col" style="width: 18rem">
+const API_KEY = '4b95aa16f04966197e2929f3cd78426d';
+const BASE_URL = 'https://api.themoviedb.org/3';
+
+// Popüler filmleri getiren async fonksiyon
+async function getPopularMovies(page = 1) {
+  const response = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=${page}`);
+  const data = await response.json();
+  return data.results;
+}
+
+// İlk 400 filmi getir ve seçilen tür filmlerini filtrele
+async function getTopChosenMovies() {
+  let movies = [];
+  let chosenMovies = [];
+
+  // İlk 20 sayfayı çek (her sayfada 20 film var, toplamda 400 film)
+  for (let i = 1; i <= 20; i++) {
+    const pageMovies = await getPopularMovies(i);
+    movies = movies.concat(pageMovies); // Filmleri birleştir
+  }
+
+  // Dropdown'dan seçilen değeri al
+  const selectedValue = await getSelectedValue();
+
+  // Seçilen türe göre filmleri filtrele
+  chosenMovies = movies.filter(movie => movie.genre_ids.includes(parseInt(selectedValue)));
+
+  // İlk 5 seçilen tür filmini al
+  const top5ChosenMovies = chosenMovies.slice(0, 5);
+// Sayfayı temizle
+  document.getElementById("content").innerHTML="";
+  // Sonuçları göster
+  top5ChosenMovies.forEach((movie, index) => {
+    console.log(`${index + 1}. ${movie.title} (${movie.release_date}) - Rating: ${movie.vote_average}`);
+    createCard(movie); // Her bir film için kart oluştur
+  });
+}
+
+// Film için kart oluşturma fonksiyonu
+function createCard(movie) {
+  let card = `<div class="card m-2" class="col" style="width: 18rem">
         <img
-          src="${"https://picsum.photos/id/23/200/300"}"
+          src="${"https://image.tmdb.org/t/p/w500" + movie.poster_path}"
           class="card-img-top"
-          alt="..."
+          alt="${movie.title}"
         />
         <div class="card-body">
-          <h5 class="card-title">${"TİTLE"}</h5>
+          <h5 class="card-title">${movie.title}</h5>
           <p class="card-text">
-          ${"CONTENT"}
+          ${movie.overview || "No description available."}
           </p>
         </div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item">${"BİLGİ1"}</li>
-          <li class="list-group-item">${"BİLGİ2"}</li>
-          <li class="list-group-item">${"BİLGİ3"}</li>
+          <li class="list-group-item">Release Date: ${movie.release_date}</li>
+          <li class="list-group-item">Rating: ${movie.vote_average}</li>
+          <li class="list-group-item">Popularity: ${movie.popularity}</li>
         </ul>
         <div class="card-body">
-          <a href="#" class="card-link">${"LİNK1"}</a>
-          <a href="#" class="card-link">${"Lİnk2"}</a>
+          <a href="#" class="card-link">More Info</a>
         </div>
       </div>`;
-  content.insertAdjacentHTML("beforeend", card1);
-
-
-for (let i = 0; i < buttonValues.length; i++) {
-  var button_values = buttonValues[i];
-  let li = `<li><a class="dropdown-item" id="${button_values.value}" href="#">${button_values.name}</a></li>`;
-  ul.insertAdjacentHTML("beforeend", li);
+  content.insertAdjacentHTML("beforeend", card);
+  
+ 
 }
 
-
-const options = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    Authorization:
-      "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0Yjk1YWExNmYwNDk2NjE5N2UyOTI5ZjNjZDc4NDI2ZCIsIm5iZiI6MTcyNjA2NzAxOS4wODYxMDMsInN1YiI6IjY2YmFiMjE5NDBiNzZjNzAyMjFhZWE2YyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ._zc1plly9CGZcJLVidYVLQ1F6dNzeONbjK99cUbngL0",
-  },
-};
-
-fetch(
-  "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&without_genres=true",
-  options
-)
-  .then((response) => response.json())
-  .then((response) => console.log(response))
-  .catch((err) => console.error(err));
-
-  console.log(button_values.value,buttonValues.name)
