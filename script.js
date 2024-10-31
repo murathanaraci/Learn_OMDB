@@ -2,9 +2,8 @@
 async function getSelectedValue() {
   var dropdown = document.getElementById("myDropdown");
   var selectedValue = dropdown.value;
-  console.log("Seçilen değer: " + selectedValue);
+  // console.log("Seçilen değer: " + selectedValue);
   return selectedValue; // Fonksiyon sonucunda seçilen değeri geri döndür
- 
 }
 
 // Dropdown ve content elementleri
@@ -33,17 +32,23 @@ const buttonValues = [
 ];
 
 // Dropdown'a seçenekleri ekle
-buttonValues.forEach(button_value => {
+buttonValues.forEach((button_value) => {
   let option = `<option value="${button_value.value}">${button_value.name}</option>`;
   document.getElementById("myDropdown").insertAdjacentHTML("beforeend", option);
 });
 
-const API_KEY = '4b95aa16f04966197e2929f3cd78426d';
-const BASE_URL = 'https://api.themoviedb.org/3';
+const API_KEY = "4b95aa16f04966197e2929f3cd78426d";
+const BASE_URL = "https://api.themoviedb.org/3";
+// Ekstra film eklemek için buton
+const morebutton = `<div class="d-grid gap-2 col-6 mx-auto" style="height: 50px;" id="morebutton">
+<button type="button" class="btn btn-primary" onclick="fivemorebutton();">Give me 5 more</button>
+</div>`;
 
 // Popüler filmleri getiren async fonksiyon
 async function getPopularMovies(page = 1) {
-  const response = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=${page}`);
+  const response = await fetch(
+    `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=${page}`
+  );
   const data = await response.json();
   return data.results;
 }
@@ -63,17 +68,84 @@ async function getTopChosenMovies() {
   const selectedValue = await getSelectedValue();
 
   // Seçilen türe göre filmleri filtrele
-  chosenMovies = movies.filter(movie => movie.genre_ids.includes(parseInt(selectedValue)));
+  chosenMovies = movies.filter((movie) =>
+    movie.genre_ids.includes(parseInt(selectedValue))
+  );
 
   // İlk 5 seçilen tür filmini al
   const top5ChosenMovies = chosenMovies.slice(0, 5);
-// Sayfayı temizle
-  document.getElementById("content").innerHTML="";
+  // Sayfayı temizle
+  document.getElementById("content").innerHTML = "";
   // Sonuçları göster
+
+  let sayfadakisayi = 0;
   top5ChosenMovies.forEach((movie, index) => {
-    console.log(`${index + 1}. ${movie.title} (${movie.release_date}) - Rating: ${movie.vote_average}`);
+    // console.log(
+    //   `${index + 1}. ${movie.title} (${movie.release_date}) - Rating: ${
+    //     movie.vote_average
+    //   }`
+    // );
     createCard(movie); // Her bir film için kart oluştur
+
+    sayfadakisayi++;
   });
+
+  if (sayfadakisayi < 5) {
+  } else {
+    content.insertAdjacentHTML("afterend", morebutton);
+  }
+  // console.log(sayfadakisayi);
+}
+
+// butona tıklandıkça film ekleme fonksiyonu
+let a = 0;
+function fivemorebutton() {
+  a = a + 5;
+  // console.log(a);
+  getTopChosenMovies();
+
+  // İlk 400 filmi getir ve seçilen tür filmlerini filtrele
+  async function getTopChosenMovies() {
+    let movies = [];
+    let chosenMovies = [];
+
+    // İlk 20 sayfayı çek (her sayfada 20 film var, toplamda 400 film)
+    for (let i = 1; i <= 20; i++) {
+      const pageMovies = await getPopularMovies(i);
+      movies = movies.concat(pageMovies); // Filmleri birleştir
+    }
+
+    // Dropdown'dan seçilen değeri al
+    const selectedValue = await getSelectedValue();
+
+    // Seçilen türe göre filmleri filtrele
+    chosenMovies = movies.filter((movie) =>
+      movie.genre_ids.includes(parseInt(selectedValue))
+    );
+
+    // İlk 5 seçilen tür filmini al
+    const top5ChosenMovies = chosenMovies.slice(a, a + 5);
+
+    // Sonuçları göster
+
+    let sayfadakisayi = 0;
+    top5ChosenMovies.forEach((movie, index) => {
+      // console.log(
+      //   `${index + 1}. ${movie.title} (${movie.release_date}) - Rating: ${
+      //     movie.vote_average
+      //   }`
+      // );
+      createCard(movie); // Her bir film için kart oluştur
+      sayfadakisayi++;
+    });
+    document.getElementById("morebutton").remove();
+    if (sayfadakisayi < 5) {
+    } else {
+      content.insertAdjacentHTML("afterend", morebutton);
+    }
+    // console.log(sayfadakisayi);
+  }
+  // console.log("5daha");
 }
 
 // Film için kart oluşturma fonksiyonu
@@ -100,7 +172,4 @@ function createCard(movie) {
         </div>
       </div>`;
   content.insertAdjacentHTML("beforeend", card);
-  
- 
 }
-
